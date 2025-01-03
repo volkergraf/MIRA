@@ -1,7 +1,7 @@
 var filterMap = [
   {
     type: "replace",
-    replace: { what: "Musk", with: "Idiot" },
+    replace: { what: "Musk", with: "Vollidiot" },
   },
   {
     type: "replace",
@@ -9,7 +9,11 @@ var filterMap = [
   },
   {
     type: "replace",
-    replace: { what: "Trump", with: "orangenes Arschloch" },
+    replace: { what: "Tesla", with: "Scheisskarre" },
+  },
+  {
+    type: "replace",
+    replace: { what: "Trump", with: "Arschloch" },
   },
   {
     type: "replace",
@@ -35,6 +39,102 @@ var filterMap = [
     type: "replace",
     replace: { what: "Söder", with: "Bayern-Arsch" },
   },
+  /* {
+    type: "remove",
+    remove: {
+      what: "Musk",
+      host: "taz.de",
+      node: "grandgrandgrandgrandgrandparent",
+    },
+  },
+  {
+    type: "remove",
+    remove: {
+      what: "Trump",
+      host: "taz.de",
+      node: "grandgrandgrandgrandgrandparent",
+    },
+  },
+  {
+    type: "remove",
+    remove: { what: "Putin", host: "taz.de", node: "grandgrandparent" },
+  },
+  {
+    type: "remove",
+    remove: { what: "Aiwanger", host: "taz.de", node: "grandgrandparent" },
+  },
+  {
+    type: "remove",
+    remove: {
+      what: "Trump",
+      host: "tagesschau.de",
+      node: "grandgrandgrandparent",
+    },
+  },
+  {
+    type: "remove",
+    remove: {
+      what: "Musk",
+      host: "tagesschau.de",
+      node: "grandgrandgrandparent",
+    },
+  },
+  {
+    type: "remove",
+    remove: {
+      what: "Musk",
+      host: "blog.fefe.de",
+      node: "grandparent",
+    },
+  },
+  {
+    type: "remove",
+    remove: {
+      what: "Trump",
+      host: "blog.fefe.de",
+      node: "grandparent",
+    },
+  },
+  {
+    type: "remove",
+    remove: {
+      what: "Trump",
+      host: "blog.fefe.de",
+      node: "grandparent",
+    },
+  },
+  {
+    type: "remove",
+    remove: {
+      what: "Trump",
+      host: "golem.de",
+      node: "grandgrandparent",
+    },
+  },
+  {
+    type: "remove",
+    remove: {
+      what: "Musk",
+      host: "golem.de",
+      node: "grandgrandparent",
+    },
+  },
+  {
+    type: "replace",
+    replace: { what: "Elon", with: "Furzknödel" },
+  },
+  {
+    type: "replace",
+    replace: { what: "Musk", with: "Arschloch" },
+  },
+  {
+    type: "replace",
+    replace: { what: "Trump", with: "Riesenarschloch" },
+  },
+  {
+    type: "replace",
+    replace: { what: "Donald", with: "Doofkopf" },
+  }, */
 ];
 
 function traverseDOM(node) {
@@ -58,6 +158,38 @@ function traverseDOM(node) {
           node.textContent = node.textContent
             .split(filterMap[j].replace.what) // .. replace <WHAT>
             .join(filterMap[j].replace.with); // .. with <WITH>
+          return;
+        }
+      } else if (
+        filterMap[j].type && // a type
+        filterMap[j].type == "remove" && // and type == 'remove'
+        filterMap[j].remove.what && // and what exists
+        node.textContent.includes(filterMap[j].remove.what) // and filterMap[j].remove.what exists
+      ) {
+        if (
+          !filterMap[j].remove.host || // ALL hosts: filterMap[j].host no set
+          filterMap[j].remove.host == "all" || // for ALL filterMap[j].host=="all"
+          window.location.host.includes(filterMap[j].remove.host) // filterMap[j].host does fit actual host
+        ) {
+          if (!filterMap[j].remove.node) {
+            // filterMap[j].node has not been set: remove the actual node
+            node.remove();
+          } else if (filterMap[j].remove.node == "parent") {
+            // filterMap[j].node been set to "parent": remove the parent node
+            if (node.parentNode) node.parentNode.remove();
+          } else if (filterMap[j].remove.node.startsWith("grand")) {
+            var occurances = filterMap[j].remove.node.split("grand").length - 1;
+            var pnode = node;
+            for (
+              var i = 0;
+              pnode != null && pnode.parentNode != null && i < occurances;
+              i++
+            ) {
+              pnode = pnode.parentNode;
+            }
+            pnode.remove();
+          }
+          return;
         }
       }
     }
